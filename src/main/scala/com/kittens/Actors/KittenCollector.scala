@@ -21,7 +21,14 @@ class KittenCollector(threshold: Int) extends Actor with ActorLogging {
   override def receive: Receive = {
     case RegisterVeterinarian(vet) =>
       log.info("Local vet registered!")
+
       veterinarian = Some(vet)
+
+      if(unvaccinatedKittens.length >= threshold) {
+        log.info("Unvaccinated kitty threshold reached! Sending to vet...")
+        vet ! VaccinateKittens(unvaccinatedKittens)
+        unvaccinatedKittens = Seq.empty
+      }
 
     case ReceiveKitten(kitten) =>
       log.info("Kitten collected! Vaccinated = {}", kitten.vaccinated)
